@@ -13,7 +13,7 @@ use File::Flock;
 our @ISA = qw(Exporter);
 our @EXPORT = qw(newdaemon);
 
-our $VERSION = 0.3;
+our $VERSION = 0.4;
 
 our $force_quit_delay = 15;
 our $package = __PACKAGE__;
@@ -49,9 +49,13 @@ sub new
 	srand(time ^ ($$ << 5))
 		unless $args{no_srand};
 
+	my $av0 = $0;
+	$av0 =~ s!/!/.!g;
+
 	my $self = {
 		gd_args		=> \%args,
 		gd_pidfile	=> $args{pidfile},
+		gd_logpriority	=> $args{logpriority},
 		gd_progname	=> $args{progname}
 					? $args{progname}
 					: $0,
@@ -59,13 +63,13 @@ sub new
 					? $args{pidbase}
 					: ($args{progname} 
 						? "/var/run/$args{progname}"
-						: "/var/run/" . map { s!/!.!g } $0),
+						: "/var/run/$av0"),
 		gd_foreground	=> $args{foreground} || 0,
 		configfile	=> $args{configfile}
 					? $args{configfile}
 					: ($args{progname}
 						? "/etc/$args{progname}.conf"
-						: "/etc/" . (map { s!/!.!g } $0) . ".conf"),
+						: "/etc/$av0"),
 		debug		=> $args{debug} || 0,
 	};
 	bless $self, $pkg;
@@ -117,7 +121,8 @@ sub new
 						exit;
 					} 
 				} elsif ($do eq 'start') {
-					$self->gd_error("\u$self->{gd_progname} is already running (pid $oldpid)\n");
+					print "\u$self->{gd_progname} is already running (pid $oldpid)\n";
+					exit(3);
 				}
 			} else {
 				$self->gd_error("Pid file $pidfile is invalid but locked, exiting\n");
@@ -228,8 +233,10 @@ sub gd_other_cmd
 sub gd_redirect_output
 {
 	my $self = shift;
+	return if $self->{gd_foreground};
 	my $logname = $self->gd_logname;
-	open(STDERR, "|logger -t '$logname'") or (print "could not open stderr: $!" && exit(1));
+	my $p = $self->{gd_logpriority} ? "-p $self->{gd_logpriority}" : "";
+	open(STDERR, "|logger $p -t '$logname'") or (print "could not open stderr: $!" && exit(1));
 	close(STDOUT);
 	open(STDOUT, ">&STDERR") or die "redirect STDOUT -> STDERR: $!";
 }

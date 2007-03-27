@@ -1,0 +1,5 @@
+
+= 2007/03/27	0.4
+
+Ronald J Kimball <rjk at tamias dot net> sent in
+a patch to avoid accidently clobbering $0.

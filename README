@@ -78,6 +78,8 @@ CONSTRUCTION
 
     version        ($pkg::VERSION) The version number of the daemon.
 
+    logpriority    Used for "logger -p".
+
 MUST-OVERRIDE CALLBACK METHODS
     The package that subclasses Daemon::Generic must provide the following
     callback methods.
@@ -269,6 +271,8 @@ MEMBER DATA
     gd_progname    The process name. (defaults to $0)
 
     gd_pidfile     The location of the process ID file.
+
+    gd_logpriority Used for "logger -p".
 
     gd_foreground  Are we running in the foreground?
 

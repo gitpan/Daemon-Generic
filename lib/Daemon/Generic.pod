@@ -108,6 +108,10 @@ processed.
 
 (C<$pkg::VERSION>) The version number of the daemon.
 
+=item logpriority
+
+Used for C<logger -p>.
+
 =back
 
 =head1 MUST-OVERRIDE CALLBACK METHODS
@@ -390,6 +394,10 @@ The process name.  (defaults to $0)
 =item gd_pidfile
 
 The location of the process ID file.
+
+=item gd_logpriority
+
+Used for C<logger -p>.
 
 =item gd_foreground
 
