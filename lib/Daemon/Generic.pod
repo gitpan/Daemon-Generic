@@ -440,6 +440,10 @@ With a while(1) and delayed signal delivery: L<Daemon::Generic::While1>.
 
 With L<Event>: L<Daemon::Generic::Event>.
 
+Modules that use Daemon::Generic:
+L<SyslogScan::Daemon>
+L<IO::Event> (rinetd.pl)
+
 Other modules that do similar things: 
 L<Net::Daemon>,
 L<Net::Server>,

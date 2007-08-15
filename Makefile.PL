@@ -9,6 +9,7 @@ WriteMakefile(
 	PREREQ_PM	=> {
 		'Getopt::Long'		=> 0,
 		'File::Flock'		=> 0,
+		'File::Slurp'		=> 0,
 		'Text::Wrap'		=> 0,
 		'Cwd'			=> 0,
 		'File::Basename'	=> 0,

@@ -167,11 +167,11 @@ The following additional bits of member data are defined:
 
 =item gd_sigint
 
-The time at which a (unprocessed) SIGINT was recevied.
+The time at which an (unprocessed) SIGINT was recevied.
 
 =item gd_sighup
 
-The time at which a (unprocessed) SIGHUP was recevied.
+The time at which an (unprocessed) SIGHUP was recevied.
 
 =back
 

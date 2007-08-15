@@ -309,6 +309,9 @@ SEE ALSO
 
     With Event: Daemon::Generic::Event.
 
+    Modules that use Daemon::Generic: SyslogScan::Daemon IO::Event
+    (rinetd.pl)
+
     Other modules that do similar things: Net::Daemon, Net::Server,
     Net::Server::Daemonize, NetServer::Generic, Proc::Application::Daemon,
     Proc::Daemon, Proc::Forking.
