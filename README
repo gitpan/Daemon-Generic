@@ -288,7 +288,7 @@ EXAMPLE PROGRAM
      sub gd_preconfig
      {
             my ($self) = @_;
-            open(CONFIG, "<$self->{gd_configfile}") or die;
+            open(CONFIG, "<$self->{configfile}") or die;
             while(<CONFIG>) {
                     $sleeptime = $1 if /^sleeptime\s+(\d+)/;
             }
@@ -316,12 +316,7 @@ SEE ALSO
     Net::Server::Daemonize, NetServer::Generic, Proc::Application::Daemon,
     Proc::Daemon, Proc::Forking.
 
-THANK THE AUTHOR
-    If you need high-speed internet services (T1, T3, OC3 etc), please send
-    me your request-for-quote. I have access to very good pricing: you'll
-    save money and get a great service.
-
 LICENSE
-    Copyright(C) 2006 David Muir Sharnoff <muir@idiom.com>. This module may
-    be used and distributed on the same terms as Perl itself.
+    Copyright(C) 2006 David Muir Sharnoff <perl@dave.sharnoff.org>, This
+    module may be used and distributed on the same terms as Perl itself.
 
