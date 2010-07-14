@@ -459,3 +459,7 @@ Copyright(C) 2006 David Muir Sharnoff <perl@dave.sharnoff.org>,
 This module may be used and distributed on the same terms
 as Perl itself.
 
+=head1 PACKAGERS
+
+Daemon::Generic is packaged for Fedora by Emmanuel Seyman <emmanuel.seyman@club-internet.fr>.
+
