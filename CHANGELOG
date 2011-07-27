@@ -1,7 +1,16 @@
+= 2011/07/26	0.81
+
+Add regression tests.
+
+Add Daemon::Generic::AnyEvent
+
 = 2011/05/19	0.72
 
 Address https://rt.cpan.org/Public/Bug/Display.html?id=63704,
 call setsid between forks rather than after them.
+
+Address https://rt.cpan.org/Public/Bug/Display.html?id=58995,
+don't unexpand tabs.
 
 = 2010/07/14	0.71
 

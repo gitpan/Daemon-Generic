@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Daemon-Generic
-version:            0.72
+version:            0.81
 abstract:           framework to provide start/stop/reload for a daemon
 author:
     - David Muir Sharnoff <cpan@dave.sharnoff.org>
@@ -9,7 +9,10 @@ distribution_type:  module
 configure_requires:
     ExtUtils::MakeMaker:  0
 build_requires:
-    ExtUtils::MakeMaker:  0
+    AnyEvent:           0
+    Eval::LineNumbers:  0
+    Event:              0
+    Time::HiRes:        0
 requires:
     Cwd:             0
     File::Basename:  0
