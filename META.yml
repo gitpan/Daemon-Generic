@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Daemon-Generic
-version:            0.81
+version:            0.82
 abstract:           framework to provide start/stop/reload for a daemon
 author:
     - David Muir Sharnoff <cpan@dave.sharnoff.org>
