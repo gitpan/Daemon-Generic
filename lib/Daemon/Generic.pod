@@ -8,7 +8,6 @@
  use Daemon::Generic;
 
  sub gd_run { ... stuff }
- sub gd_preconfig { ... stuff }
 
  newdaemon();
 
@@ -25,7 +24,7 @@ Genric::Daemon does can be overridden as needed.
 
 =head1 EXAMPLE USAGE OUTPUT
 
-Unless overriden, the usage output for your program will 
+Unless overridden, the usage output for your program will 
 look something like this:
 
  Usage: $progname [ -c file ] [ -f ] { start | stop | reload | restart | help | version | check }
@@ -68,7 +67,7 @@ file for this daemon.
 
 (/var/run/$progname) We include the configuration file name
 as part of the pid file in case there are multiple instances
-of this deamon.  The pidbase is is the part of the PID file
+of this daemon.  The pidbase is is the part of the PID file
 that does not include the configuration file name.
 
 =item pidfile
@@ -121,6 +120,21 @@ callback methods.
 
 =over 15
 
+=item gd_run()
+
+This is where you put your main program.
+
+It is okay to change userid/group as the first action of gd_run().
+
+=back
+
+=head1 MAY-OVERRIDE CALLBACK METHODS
+
+The package that subclasses Daemon::Generic does not have to override these
+methods but it may want to.
+
+=over 15
+
 =item gd_preconfig()
 
 C<gd_preconfig()> is called to parse the configuration file 
@@ -133,19 +147,7 @@ The return value should be a hash.  With one exception, the return
 value is only used by C<gd_postconfig()>.  The exception is that 
 C<gd_preconfig()> may return a revised PID file location (key C<pidfile>).
 
-=item gd_run()
-
-This is where you put your main program.
-
-
-=back
-
-=head1 MAY-OVERRIDE CALLBACK METHODS
-
-The package that subclasses Daemon::Generic does not have to override these
-methods but it may want to.
-
-=over 15
+Most uses of Daemon::Generic should define C<gd_preconfig>.
 
 =item gd_postconfig(%config)
 
@@ -291,6 +293,12 @@ Normal behavior: C<fork()>, C<fork()>, detach from tty.
 
 =item gd_redirect_output()
 
+This is a mis-named method.  Sorry.  This directs C<STDOUT>/C<STDERR>/C<STDIN>
+to C</dev/null> as part of daemonizing.  Used by C<gd_daemonize()>.
+
+=item gd_reopen_output()
+
+After daemonizing, output file descriptors are be re-established.
 Normal behavior: redirect C<STDOUT> and C<STDERR> to 
 C<logger -t $progname[$$]>.  Used by C<gd_daemonize()>.
 
@@ -307,6 +315,11 @@ Only referenced by C<gd_setup_signals()>.
 
 Normal behavior: exit. 
 Only referenced by C<gd_setup_signals()>.
+
+=item gd_kill_groups()
+
+Return true if gd_kill should kill process groups ($pid) instead of just
+the one daemon ($pid).  Default is false.
 
 =item gd_kill($pid)
 

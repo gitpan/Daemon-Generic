@@ -7,11 +7,12 @@ require Exporter;
 require POSIX;
 use Getopt::Long;
 use File::Slurp;
+use File::Flock::Forking;
 use File::Flock;
 our @ISA = qw(Exporter);
 our @EXPORT = qw(newdaemon);
 
-our $VERSION = 0.82;
+our $VERSION = 0.83;
 
 our $force_quit_delay = 15;
 our $package = __PACKAGE__;
@@ -100,7 +101,7 @@ sub new
 		if ($locked = lock($pidfile, undef, 'nonblocking')) {
 			# old process is dead
 			if ($do eq 'status') {
-			    print "$0 dead\n";
+			    print "$self->{gd_progname} dead\n";
 			    exit 1;
 			}
 		} else {
@@ -124,16 +125,16 @@ sub new
 					}
 				} elsif ($do eq 'status') {
 					if (kill(0,$oldpid)) {
-						print "$0 running - pid $oldpid\n";
+						print "$self->{gd_progname} running - pid $oldpid\n";
 						$self->gd_check($pidfile, $oldpid);
 						exit 0;
 					} else {
-						print "$0 dead\n";
+						print "$self->{gd_progname} dead\n";
 						exit 1;
 					}
 				} elsif ($do eq 'check') {
 					if (kill(0,$oldpid)) {
-						print "$0 running - pid $oldpid\n";
+						print "$self->{gd_progname} running - pid $oldpid\n";
 						$self->gd_check($pidfile, $oldpid);
 						exit;
 					} 
@@ -151,7 +152,7 @@ sub new
 	}
 
 	if ($do eq 'reload' || $do eq 'stop' || $do eq 'check' || ($do eq 'restart' && ! $killed)) {
-		print "No $0 running\n";
+		print "No $self->{gd_progname} running\n";
 	}
 
 	if ($do eq 'stop') {
@@ -160,7 +161,7 @@ sub new
 	}
 
 	if ($do eq 'status') {
-		print "Unused\n";
+		print "No $self->{gd_progname} running\n";
 		exit 3;
 	}
 
@@ -265,11 +266,23 @@ sub gd_redirect_output
 	open(STDERR, ">&STDOUT") or tmpdie("dup stdout > stderr: $!");
 }
 
+sub gd_reopen_output
+{
+	my $self = shift;
+	return if $self->{gd_foreground};
+	my $logname = $self->gd_logname;
+	my $p = $self->{gd_logpriority} ? "-p $self->{gd_logpriority}" : "";
+	open(STDERR, "|logger $p -t '$logname'") or tmpdie("open |logger $p -t $logname: $!");
+	open(STDOUT, ">&STDERR") or tmpdie("dup stderr > stdout: $!");
+	select(STDERR);
+	$| = 1;
+	select(STDOUT);
+	$| = 1;
+}
+
 sub gd_daemonize
 {
 	my $self = shift;
-	my $logname = $self->gd_logname;
-
 	open(TMPERR, ">&STDERR") or die "dup STDERR > TMPERR: $!";
 
 	print "Starting $self->{gd_progname} server\n";
@@ -281,13 +294,7 @@ sub gd_daemonize
 
 	POSIX::setsid();
 
-	my $p = $self->{gd_logpriority} ? "-p $self->{gd_logpriority}" : "";
-	open(STDERR, "|logger $p -t '$logname'") or tmpdie("open |logger $p -t $logname: $!");
-	open(STDOUT, ">&STDERR") or tmpdie("dup stderr > stdout: $!");
-	select(STDERR);
-	$| = 1;
-	select(STDOUT);
-	$| = 1;
+	$self->gd_reopen_output();
 	print "Sucessfully daemonized\n" 
 		or tmpdie("write to |logger: $!");
 
@@ -515,9 +522,14 @@ sub gd_uninstall
 	exit(0);
 }
 
+sub gd_kill_groups { 0 }
+	
+
 sub gd_kill
 {
 	my ($self, $pid) = @_;
+
+	$pid = -abs($pid) if $self->gd_kill_groups();
 
 	my $talkmore = 0;
 	my $killed = 0;
@@ -565,7 +577,7 @@ sub gd_kill
 	return $killed;
 }
 
-sub gd_preconfig { die "gd_preconfig() must be redefined"; }
+sub gd_preconfig { }
 
 sub gd_postconfig { }
 

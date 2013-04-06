@@ -5,7 +5,6 @@ SYNOPSIS
      use Daemon::Generic;
 
      sub gd_run { ... stuff }
-     sub gd_preconfig { ... stuff }
 
      newdaemon();
 
@@ -19,7 +18,7 @@ DESCRIPTION
     overridden as needed.
 
 EXAMPLE USAGE OUTPUT
-    Unless overriden, the usage output for your program will look something
+    Unless overridden, the usage output for your program will look something
     like this:
 
      Usage: $progname [ -c file ] [ -f ] { start | stop | reload | restart | help | version | check }
@@ -51,7 +50,7 @@ CONSTRUCTION
 
     pidbase        (/var/run/$progname) We include the configuration file
                    name as part of the pid file in case there are multiple
-                   instances of this deamon. The pidbase is is the part of
+                   instances of this daemon. The pidbase is is the part of
                    the PID file that does not include the configuration file
                    name.
 
@@ -84,6 +83,15 @@ MUST-OVERRIDE CALLBACK METHODS
     The package that subclasses Daemon::Generic must provide the following
     callback methods.
 
+    gd_run()       This is where you put your main program.
+
+                   It is okay to change userid/group as the first action of
+                   gd_run().
+
+MAY-OVERRIDE CALLBACK METHODS
+    The package that subclasses Daemon::Generic does not have to override
+    these methods but it may want to.
+
     gd_preconfig() "gd_preconfig()" is called to parse the configuration
                    file ("$self->{configfile}"). Preconfig is called on all
                    invocations of the daemon ("daemon reload", "daemon
@@ -96,11 +104,8 @@ MUST-OVERRIDE CALLBACK METHODS
                    exception is that "gd_preconfig()" may return a revised
                    PID file location (key "pidfile").
 
-    gd_run()       This is where you put your main program.
-
-MAY-OVERRIDE CALLBACK METHODS
-    The package that subclasses Daemon::Generic does not have to override
-    these methods but it may want to.
+                   Most uses of Daemon::Generic should define
+                   "gd_preconfig".
 
     gd_postconfig(%config)
                    Postconfig() is called only when the daeamon is actually
@@ -199,8 +204,15 @@ MAY-OVERRIDE CALLBACK METHODS
     gd_daemonize() Normal behavior: "fork()", "fork()", detach from tty.
 
     gd_redirect_output()
-                   Normal behavior: redirect "STDOUT" and "STDERR" to
-                   "logger -t $progname[$$]". Used by "gd_daemonize()".
+                   This is a mis-named method. Sorry. This directs
+                   "STDOUT"/"STDERR"/"STDIN" to "/dev/null" as part of
+                   daemonizing. Used by "gd_daemonize()".
+
+    gd_reopen_output()
+                   After daemonizing, output file descriptors are be
+                   re-established. Normal behavior: redirect "STDOUT" and
+                   "STDERR" to "logger -t $progname[$$]". Used by
+                   "gd_daemonize()".
 
     gd_logname()   Normal behavior: $progname[$$]. Used by
                    "gd_redirect_output()".
@@ -212,6 +224,10 @@ MAY-OVERRIDE CALLBACK METHODS
     gd_quit_event()
                    Normal behavior: exit. Only referenced by
                    "gd_setup_signals()".
+
+    gd_kill_groups()
+                   Return true if gd_kill should kill process groups ($pid)
+                   instead of just the one daemon ($pid). Default is false.
 
     gd_kill($pid)  Used by the "stop" and "restart" commands to get rid of
                    the old daemon. Normal behavior: send a SIGINT. Check to
